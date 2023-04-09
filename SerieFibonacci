@@ -1,0 +1,48 @@
+     .data
+      .data
+fibs: .word   0 : 19        # "matris" de 19 palabras para contener los valores fibonacci
+size: .word  19             # tamaños de "matriz" 
+      .text
+      la   $t0, fibs        # cargar la dirreccion de la matriz 
+      la   $t5, size        # carga la dirreccion de la variablede tamñao  
+      lw   $t5, 0($t5)      # carga el tamaño de lamatriz
+      li   $t2, 1           # 1 es primero y segundo Fibonacci
+      add.d $f0, $f2, $f4
+      sw   $t2, 0($t0)      # F[0] = 1
+      sw   $t2, 4($t0)      # F[1] = F[0] = 1
+      addi $t1, $t5, -2     # Contador para bucle,ejecutara (tamaño-2) tim
+loop: lw   $t3, 0($t0)      # obtener el valor de la matriz F[n] 
+      lw   $t4, 4($t0)      # obtener el valor de la matriz F[n+1]
+      add  $t2, $t3, $t4    # $t2 = F[n] + F[n+1]
+      sw   $t2, 8($t0)      # Almacenar F[n+2] = F[n] + F[n+1] en el arreglo
+      addi $t0, $t0, 4      # Incrementa la dirrecion de Fibonacci
+      addi $t1, $t1, -1     # decremento bucle contador
+      bgtz $t1, loop        # repetir si aun no ha terminado.
+      la   $a0, fibs        # primer argumento para imprimir (matriz)
+      add  $a1, $zero, $t5  # segundo argumentoara imprimir (tamaño)
+      jal  print            # llamar a la rutina de impresion. 
+      li   $v0, 10          # llamada del sistema para
+      syscall               # salir # nos vamos de aqui.
+      
+      
+#  para imprimir los numeros en una linea. 
+
+      .data
+space:.asciiz  " "          # espacio para insertar entre numeros
+head: .asciiz  "los numeros de Fibonacci son:\n"
+      .text
+print:add  $t0, $zero, $a0  # direccion inicial de la matriz
+      add  $t1, $zero, $a1  # inicializa el contador de bucle al tamaño de la matriz
+      la   $a0, head        # carga la direccion del encabezado de impresion
+      li   $v0, 4           # especificar el servicio de cadena de impresion 
+      syscall               # imprimir encabezado
+out:  lw   $a0, 0($t0)      # cargar el numero de fiboacci para syscall
+      li   $v0, 1           # especificar el servicio de imprsion e enteros 
+      syscall               # imprime el numero de fibonacci
+      la   $a0, space       # carga la direccion  del espaciador para syscall
+      li   $v0, 4           # especificar el servicio de cadena de impresion 
+      syscall               # cadena de salida
+      addi $t0, $t0, 4      # direccion de incremento
+      addi $t1, $t1, -1     # decrementa el contador del
+      bgtz $t1, out         # bucle # repitesi no ha terminado
+      jr   $ra              # devolver
